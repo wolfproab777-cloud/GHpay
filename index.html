@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pul O'tkazmalari Simulyatsiyasi</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    /* Karta dizayni */
+    .card-preview {
+      background: linear-gradient(135deg, #11998e, #38ef7d);
+      border-radius: 15px;
+      padding: 20px;
+      color: white;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      position: relative;
+      transition: background 0.4s ease;
+    }
+
+    .card-type {
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: right;
+      height: 20px;
+    }
+
+    .card-number-display {
+      font-size: 20px;
+      letter-spacing: 2px;
+      margin: 25px 0 15px 0;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .card-holder {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    /* Forma elementlari */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      border-color: #11998e;
+    }
+
+    .row {
+      display: flex;
+      gap: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #11998e;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.1s;
+    }
+
+    button:hover {
+      background: #0e8278;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Chek (Receipt) oynasi */
+    .receipt {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-left: 4px solid #11998e;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .receipt p {
+      margin-bottom: 6px;
+    }
+
+    .receipt-title {
+      font-weight: bold;
+      color: #11998e;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Pul O'tkazmasi</h2>
+
+    <!-- Interaktiv Karta -->
+    <div class="card-preview" id="cardPreview">
+      <div class="card-type" id="cardType">Karta Turi</div>
+      <div class="card-number-display" id="cardNumberDisplay">8600 •••• •••• ••••</div>
+      <div class="card-holder">
+        <span>VALI YUSUPOV</span>
+        <span id="expDisplay">12/28</span>
+      </div>
+    </div>
+
+    <!-- Forma -->
+    <div class="form-group">
+      <label for="cardNumber">Karta raqami</label>
+      <input type="text" id="cardNumber" placeholder="8600 0000 0000 0000" maxlength="19">
+    </div>
+
+    <div class="row">
+      <div class="form-group" style="flex: 1;">
+        <label for="expDate">Amal qilish muddati</label>
+        <input type="text" id="expDate" placeholder="MM/YY" maxlength="5">
+      </div>
+      <div class="form-group" style="flex: 1.5;">
+        <label for="amount">Summa (so'm)</label>
+        <input type="number" id="amount" placeholder="10000">
+      </div>
+    </div>
+
+    <button id="sendBtn">Pul yuborish</button>
+
+    <!-- Chek -->
+    <div class="receipt" id="receipt">
+      <div class="receipt-title">✅ O'tkazma Muvaffaqiyatli Bajarildi!</div>
+      <p id="recCard">Qabul qiluvchi: -</p>
+      <p id="recAmount">Summa: 0 so'm</p>
+      <p id="recFee">Komissiya (1%): 0 so'm</p>
+      <hr style="margin: 8px 0; border: none; border-top: 1px dashed #ccc;">
+      <p id="recTotal" style="font-weight: bold;">Jami yechildi: 0 so'm</p>
+    </div>
+  </div>
+
+  <script>
+    const cardNumberInput = document.getElementById('cardNumber');
+    const expDateInput = document.getElementById('expDate');
+    const amountInput = document.getElementById('amount');
+    const sendBtn = document.getElementById('sendBtn');
+
+    const cardPreview = document.getElementById('cardPreview');
+    const cardType = document.getElementById('cardType');
+    const cardNumberDisplay = document.getElementById('cardNumberDisplay');
+    const expDisplay = document.getElementById('expDisplay');
+
+    const receipt = document.getElementById('receipt');
+    const recCard = document.getElementById('recCard');
+    const recAmount = document.getElementById('recAmount');
+    const recFee = document.getElementById('recFee');
+    const recTotal = document.getElementById('recTotal');
+
+    // Karta raqami kiritilganda formatlash va turini aniqlash
+    cardNumberInput.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\D/g, ''); // faqat raqamlarni qoldirish
+      let formattedValue = '';
+
+      // 4 tadan probel ajratish
+      for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 4 === 0) formattedValue += ' ';
+        formattedValue += value[i];
+      }
+      e.target.value = formattedValue;
+
+      // Kartaga chiqarish
+      cardNumberDisplay.innerText = formattedValue || '8600 •••• •••• ••••';
+
+      // Karta turini va rangini aniqlash
+      if (value.startsWith('8600')) {
+        cardType.innerText = 'UZCARD';
+        cardPreview.style.background = 'linear-gradient(135deg, #0052D4, #4364F7, #6FB1FC)';
+      } else if (value.startsWith('9860')) {
+        cardType.innerText = 'HUMO';
+        cardPreview.style.background = 'linear-gradient(135deg, #f857a6, #ff5858)';
+      } else if (value.startsWith('4')) {
+        cardType.innerText = 'VISA';
+        cardPreview.style.background = 'linear-gradient(135deg, #11998e, #38ef7d)';
+      } else {
+        cardType.innerText = 'KARTA TURI';
+        cardPreview.style.background = 'linear-gradient(135deg, #11998e, #38ef7d)';
+      }
+    });
+
+    // Muddatni formatlash (MM/YY)
+    expDateInput.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.length >= 2) {
+        val = val.substring(0, 2) + '/' + val.substring(2, 4);
+      }
+      e.target.value = val;
+      expDisplay.innerText = val || '12/28';
+    });
+
+    // Tugma bosilganda o'tkazmani hisoblash va chek chiqarish
+    sendBtn.addEventListener('click', () => {
+      const cardNum = cardNumberInput.value.trim();
+      const amount = parseFloat(amountInput.value);
+
+      if (cardNum.length < 19) {
+        alert("Iltimos, 16 xonali karta raqamini to'liq kiriting!");
+        return;
+      }
+
+      if (isNaN(amount) || amount <= 0) {
+        alert("Iltimos, to'g'ri summa kiriting!");
+        return;
+      }
+
+      const fee = amount * 0.01; // 1% komissiya
+      const total = amount + fee;
+
+      // Chek ma'lumotlarini to'ldirish
+      recCard.innerText = `Qabul qiluvchi: ${cardNum}`;
+      recAmount.innerText = `Summa: ${amount.toLocaleString()} so'm`;
+      recFee.innerText = `Komissiya (1%): ${fee.toLocaleString()} so'm`;
+      recTotal.innerText = `Jami yechildi: ${total.toLocaleString()} so'm`;
+
+      receipt.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
