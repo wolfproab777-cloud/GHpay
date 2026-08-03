@@ -3,278 +3,349 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pul O'tkazmalari Simulyatsiyasi</title>
+  <title>InstaClone — Professional Feed</title>
   <style>
+    :root {
+      --bg-color: #000000;
+      --card-bg: #121212;
+      --border-color: #262626;
+      --text-main: #f5f5f5;
+      --text-muted: #a8a8a8;
+      --accent: #0095f6;
+      --like-color: #ff3040;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     body {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      min-height: 100vh;
+      background-color: var(--bg-color);
+      color: var(--text-main);
       display: flex;
       justify-content: center;
-      align-items: center;
-      padding: 20px;
+      min-height: 100vh;
     }
 
-    .container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      padding: 30px;
+    /* Asosiy konteyner */
+    .app-container {
       width: 100%;
-      max-width: 420px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      max-width: 470px;
+      padding: 10px;
+      margin-bottom: 50px;
     }
 
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    /* Karta dizayni */
-    .card-preview {
-      background: linear-gradient(135deg, #11998e, #38ef7d);
-      border-radius: 15px;
-      padding: 20px;
-      color: white;
-      margin-bottom: 25px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      position: relative;
-      transition: background 0.4s ease;
-    }
-
-    .card-type {
-      font-size: 14px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: right;
-      height: 20px;
-    }
-
-    .card-number-display {
-      font-size: 20px;
-      letter-spacing: 2px;
-      margin: 25px 0 15px 0;
-      font-family: 'Courier New', Courier, monospace;
-    }
-
-    .card-holder {
+    /* Yuqori Header */
+    header {
       display: flex;
       justify-content: space-between;
-      font-size: 12px;
+      align-items: center;
+      padding: 15px 5px;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 10;
     }
 
-    /* Forma elementlari */
-    .form-group {
-      margin-bottom: 18px;
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      font-style: italic;
+      letter-spacing: -1px;
     }
 
-    label {
-      display: block;
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 6px;
+    .add-post-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
       font-weight: 600;
+      cursor: pointer;
     }
 
-    input {
+    /* Modal (Post yaratish oyna) */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .modal-content h3 { margin-bottom: 15px; }
+    .modal-content input, .modal-content textarea {
       width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.3s;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #000;
+      border: 1px solid var(--border-color);
+      color: white;
+      border-radius: 6px;
     }
 
-    input:focus {
-      border-color: #11998e;
+    /* Postlar Lentiasi */
+    .feed {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
     }
 
-    .row {
+    .post-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      padding: 2px;
+    }
+
+    .avatar img {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .username {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .post-img {
+      width: 100%;
+      max-height: 500px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .post-actions {
+      padding: 10px 12px 5px;
       display: flex;
       gap: 15px;
     }
 
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #11998e;
-      color: white;
+    .action-btn {
+      background: none;
       border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: bold;
+      color: white;
+      font-size: 20px;
       cursor: pointer;
-      transition: background 0.3s, transform 0.1s;
     }
 
-    button:hover {
-      background: #0e8278;
+    .action-btn.liked { color: var(--like-color); }
+
+    .post-likes {
+      padding: 0 12px;
+      font-weight: 600;
+      font-size: 13px;
     }
 
-    button:active {
-      transform: scale(0.98);
-    }
-
-    /* Chek (Receipt) oynasi */
-    .receipt {
-      display: none;
-      margin-top: 20px;
-      padding: 15px;
-      background: #f8f9fa;
-      border-left: 4px solid #11998e;
-      border-radius: 8px;
+    .post-caption {
+      padding: 5px 12px;
       font-size: 14px;
-      color: #333;
     }
 
-    .receipt p {
-      margin-bottom: 6px;
+    .post-caption span { font-weight: 600; margin-right: 5px; }
+
+    /* Izohlar */
+    .comments-section {
+      padding: 5px 12px 12px;
     }
 
-    .receipt-title {
-      font-weight: bold;
-      color: #11998e;
-      margin-bottom: 10px;
+    .comment-item {
+      font-size: 13px;
+      margin-top: 3px;
+      color: var(--text-muted);
+    }
+
+    .comment-input-box {
+      display: flex;
+      border-top: 1px solid var(--border-color);
+      margin-top: 10px;
+    }
+
+    .comment-input-box input {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 10px 12px;
+      color: white;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .comment-input-box button {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-weight: 600;
+      padding: 0 12px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h2>Pul O'tkazmasi</h2>
+  <div class="app-container">
+    <header>
+      <div class="logo">InstaClone</div>
+      <button class="add-post-btn" id="openModalBtn">+ Post</button>
+    </header>
 
-    <!-- Interaktiv Karta -->
-    <div class="card-preview" id="cardPreview">
-      <div class="card-type" id="cardType">Karta Turi</div>
-      <div class="card-number-display" id="cardNumberDisplay">8600 •••• •••• ••••</div>
-      <div class="card-holder">
-        <span>VALI YUSUPOV</span>
-        <span id="expDisplay">12/28</span>
+    <!-- Modal: Yangi post yaratish -->
+    <div class="modal" id="postModal">
+      <div class="modal-content">
+        <h3>Yangi Post Yaratish</h3>
+        <input type="text" id="authorInput" placeholder="Ismingiz (username)">
+        <input type="file" id="imageInput" accept="image/*">
+        <textarea id="captionInput" placeholder="Rasm haqida matn..." rows="3"></textarea>
+        <button class="add-post-btn" id="submitPostBtn" style="width: 100%;">Ulashish</button>
       </div>
     </div>
 
-    <!-- Forma -->
-    <div class="form-group">
-      <label for="cardNumber">Karta raqami</label>
-      <input type="text" id="cardNumber" placeholder="8600 0000 0000 0000" maxlength="19">
-    </div>
-
-    <div class="row">
-      <div class="form-group" style="flex: 1;">
-        <label for="expDate">Amal qilish muddati</label>
-        <input type="text" id="expDate" placeholder="MM/YY" maxlength="5">
-      </div>
-      <div class="form-group" style="flex: 1.5;">
-        <label for="amount">Summa (so'm)</label>
-        <input type="number" id="amount" placeholder="10000">
-      </div>
-    </div>
-
-    <button id="sendBtn">Pul yuborish</button>
-
-    <!-- Chek -->
-    <div class="receipt" id="receipt">
-      <div class="receipt-title">✅ O'tkazma Muvaffaqiyatli Bajarildi!</div>
-      <p id="recCard">Qabul qiluvchi: -</p>
-      <p id="recAmount">Summa: 0 so'm</p>
-      <p id="recFee">Komissiya (1%): 0 so'm</p>
-      <hr style="margin: 8px 0; border: none; border-top: 1px dashed #ccc;">
-      <p id="recTotal" style="font-weight: bold;">Jami yechildi: 0 so'm</p>
-    </div>
+    <!-- Feed (Lenta) -->
+    <div class="feed" id="feedContainer"></div>
   </div>
 
   <script>
-    const cardNumberInput = document.getElementById('cardNumber');
-    const expDateInput = document.getElementById('expDate');
-    const amountInput = document.getElementById('amount');
-    const sendBtn = document.getElementById('sendBtn');
-
-    const cardPreview = document.getElementById('cardPreview');
-    const cardType = document.getElementById('cardType');
-    const cardNumberDisplay = document.getElementById('cardNumberDisplay');
-    const expDisplay = document.getElementById('expDisplay');
-
-    const receipt = document.getElementById('receipt');
-    const recCard = document.getElementById('recCard');
-    const recAmount = document.getElementById('recAmount');
-    const recFee = document.getElementById('recFee');
-    const recTotal = document.getElementById('recTotal');
-
-    // Karta raqami kiritilganda formatlash va turini aniqlash
-    cardNumberInput.addEventListener('input', (e) => {
-      let value = e.target.value.replace(/\D/g, ''); // faqat raqamlarni qoldirish
-      let formattedValue = '';
-
-      // 4 tadan probel ajratish
-      for (let i = 0; i < value.length; i++) {
-        if (i > 0 && i % 4 === 0) formattedValue += ' ';
-        formattedValue += value[i];
+    // Boshlang'ich ma'lumotlar (Demo Data)
+    let posts = [
+      {
+        id: 1,
+        author: "ali_coder",
+        avatar: "https://i.pravatar.cc/150?img=11",
+        image: "https://picsum.photos/600/600?random=1",
+        caption: "Toshkentda ajoyib kun! ☀️ #nature #uzb",
+        likes: 12,
+        isLiked: false,
+        comments: ["Zo'r rasm!", "Chiroyli chiqibdi"]
       }
-      e.target.value = formattedValue;
+    ];
 
-      // Kartaga chiqarish
-      cardNumberDisplay.innerText = formattedValue || '8600 •••• •••• ••••';
+    const feedContainer = document.getElementById('feedContainer');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const postModal = document.getElementById('postModal');
+    const submitPostBtn = document.getElementById('submitPostBtn');
 
-      // Karta turini va rangini aniqlash
-      if (value.startsWith('8600')) {
-        cardType.innerText = 'UZCARD';
-        cardPreview.style.background = 'linear-gradient(135deg, #0052D4, #4364F7, #6FB1FC)';
-      } else if (value.startsWith('9860')) {
-        cardType.innerText = 'HUMO';
-        cardPreview.style.background = 'linear-gradient(135deg, #f857a6, #ff5858)';
-      } else if (value.startsWith('4')) {
-        cardType.innerText = 'VISA';
-        cardPreview.style.background = 'linear-gradient(135deg, #11998e, #38ef7d)';
-      } else {
-        cardType.innerText = 'KARTA TURI';
-        cardPreview.style.background = 'linear-gradient(135deg, #11998e, #38ef7d)';
+    // Postlarni ekranga chiqarish
+    function renderPosts() {
+      feedContainer.innerHTML = '';
+      posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.classList.add('post-card');
+        postElement.innerHTML = `
+          <div class="post-header">
+            <div class="avatar"><img src="${post.avatar}" alt="avatar"></div>
+            <div class="username">${post.author}</div>
+          </div>
+          <img src="${post.image}" class="post-img" alt="post">
+          <div class="post-actions">
+            <button class="action-btn ${post.isLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+              ${post.isLiked ? '❤️' : '🤍'}
+            </button>
+          </div>
+          <div class="post-likes">${post.likes} ta layk</div>
+          <div class="post-caption"><span>${post.author}</span>${post.caption}</div>
+          
+          <div class="comments-section">
+            ${post.comments.map(c => `<div class="comment-item"><b>Foydalanuvchi:</b> ${c}</div>`).join('')}
+            <div class="comment-input-box">
+              <input type="text" placeholder="Izoh qoldiring..." id="comment-input-${post.id}">
+              <button onclick="addComment(${post.id})">Joylash</button>
+            </div>
+          </div>
+        `;
+        feedContainer.appendChild(postElement);
+      });
+    }
+
+    // Layk bosish mantiqi
+    function toggleLike(id) {
+      const post = posts.find(p => p.id === id);
+      if (post) {
+        post.isLiked = !post.isLiked;
+        post.likes += post.isLiked ? 1 : -1;
+        renderPosts();
       }
-    });
+    }
 
-    // Muddatni formatlash (MM/YY)
-    expDateInput.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/\D/g, '');
-      if (val.length >= 2) {
-        val = val.substring(0, 2) + '/' + val.substring(2, 4);
+    // Izoh qo'shish mantiqi
+    function addComment(id) {
+      const input = document.getElementById(`comment-input-${id}`);
+      if (input.value.trim() !== '') {
+        const post = posts.find(p => p.id === id);
+        post.comments.push(input.value.trim());
+        input.value = '';
+        renderPosts();
       }
-      e.target.value = val;
-      expDisplay.innerText = val || '12/28';
-    });
+    }
 
-    // Tugma bosilganda o'tkazmani hisoblash va chek chiqarish
-    sendBtn.addEventListener('click', () => {
-      const cardNum = cardNumberInput.value.trim();
-      const amount = parseFloat(amountInput.value);
+    // Modal oynani ochish/yopish
+    openModalBtn.onclick = () => postModal.style.display = 'flex';
+    window.onclick = (e) => { if (e.target === postModal) postModal.style.display = 'none'; };
 
-      if (cardNum.length < 19) {
-        alert("Iltimos, 16 xonali karta raqamini to'liq kiriting!");
+    // Yangi post yaratish
+    submitPostBtn.onclick = () => {
+      const author = document.getElementById('authorInput').value || 'noma_lum';
+      const caption = document.getElementById('captionInput').value;
+      const imageFile = document.getElementById('imageInput').files[0];
+
+      if (!imageFile) {
+        alert("Iltimos, rasm tanlang!");
         return;
       }
 
-      if (isNaN(amount) || amount <= 0) {
-        alert("Iltimos, to'g'ri summa kiriting!");
-        return;
-      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const newPost = {
+          id: Date.now(),
+          author: author,
+          avatar: "https://i.pravatar.cc/150?img=33",
+          image: e.target.result,
+          caption: caption,
+          likes: 0,
+          isLiked: false,
+          comments: []
+        };
+        posts.unshift(newPost);
+        renderPosts();
+        postModal.style.display = 'none';
+      };
+      reader.readAsDataURL(imageFile);
+    };
 
-      const fee = amount * 0.01; // 1% komissiya
-      const total = amount + fee;
-
-      // Chek ma'lumotlarini to'ldirish
-      recCard.innerText = `Qabul qiluvchi: ${cardNum}`;
-      recAmount.innerText = `Summa: ${amount.toLocaleString()} so'm`;
-      recFee.innerText = `Komissiya (1%): ${fee.toLocaleString()} so'm`;
-      recTotal.innerText = `Jami yechildi: ${total.toLocaleString()} so'm`;
-
-      receipt.style.display = 'block';
-    });
+    // Boshlanishida chiqarish
+    renderPosts();
   </script>
 </body>
 </html>
