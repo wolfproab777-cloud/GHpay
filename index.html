@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InstaClone — Professional Feed</title>
+  <title>Ghpat — Modern Social Network</title>
   <style>
     :root {
-      --bg-color: #000000;
-      --card-bg: #121212;
-      --border-color: #262626;
-      --text-main: #f5f5f5;
-      --text-muted: #a8a8a8;
-      --accent: #0095f6;
-      --like-color: #ff3040;
+      --bg-main: #0a0a0c;
+      --card-bg: #141418;
+      --border-color: #26262e;
+      --text-main: #ffffff;
+      --text-muted: #9a9ab0;
+      --accent-gradient: linear-gradient(135deg, #8a2be2, #00d2ff);
+      --like-color: #ff3366;
     }
 
     * {
@@ -23,115 +23,140 @@
     }
 
     body {
-      background-color: var(--bg-color);
+      background-color: var(--bg-main);
       color: var(--text-main);
       display: flex;
       justify-content: center;
       min-height: 100vh;
+      padding-bottom: 60px;
     }
 
-    /* Asosiy konteyner */
+    /* Markaziy Konteyner */
     .app-container {
       width: 100%;
-      max-width: 470px;
-      padding: 10px;
-      margin-bottom: 50px;
+      max-width: 480px;
+      padding: 0 10px;
     }
 
-    /* Yuqori Header */
+    /* Header Navigatsiya */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 5px;
+      padding: 16px 12px;
       border-bottom: 1px solid var(--border-color);
       position: sticky;
       top: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(10px);
-      z-index: 10;
+      background: rgba(10, 10, 12, 0.9);
+      backdrop-filter: blur(12px);
+      z-index: 50;
     }
 
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-      font-style: italic;
-      letter-spacing: -1px;
+    .brand-logo {
+      font-size: 26px;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
 
-    .add-post-btn {
-      background: var(--accent);
+    .btn-create {
+      background: var(--accent-gradient);
       color: white;
       border: none;
-      padding: 6px 14px;
-      border-radius: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
       font-weight: 600;
+      font-size: 14px;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
+      transition: transform 0.2s;
     }
 
-    /* Modal (Post yaratish oyna) */
-    .modal {
+    .btn-create:active {
+      transform: scale(0.95);
+    }
+
+    /* Modal / Yaratish Oynasi */
+    .modal-overlay {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
       justify-content: center;
       align-items: center;
       z-index: 100;
     }
 
-    .modal-content {
+    .modal-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 16px;
+      padding: 24px;
       width: 90%;
-      max-width: 400px;
+      max-width: 420px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
-    .modal-content h3 { margin-bottom: 15px; }
-    .modal-content input, .modal-content textarea {
+    .modal-card h3 {
+      margin-bottom: 16px;
+      font-size: 18px;
+    }
+
+    .input-field, .textarea-field {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      background: #000;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #000000;
       border: 1px solid var(--border-color);
       color: white;
-      border-radius: 6px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
     }
 
-    /* Postlar Lentiasi */
+    .input-field:focus, .textarea-field:focus {
+      border-color: #8a2be2;
+    }
+
+    /* Postlar Lentasining Stili */
     .feed {
-      margin-top: 20px;
+      margin-top: 16px;
       display: flex;
       flex-direction: column;
-      gap: 25px;
+      gap: 20px;
     }
 
-    .post-card {
+    .post {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 14px;
       overflow: hidden;
     }
 
     .post-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px;
+      gap: 12px;
+      padding: 12px 16px;
     }
 
-    .avatar {
-      width: 38px;
-      height: 38px;
+    .user-avatar {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      background: var(--accent-gradient);
       padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .avatar img {
-      width: 100%; height: 100%;
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
       object-fit: cover;
     }
@@ -141,75 +166,102 @@
       font-size: 14px;
     }
 
-    .post-img {
+    .post-image-box {
       width: 100%;
-      max-height: 500px;
+      max-height: 520px;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .post-image {
+      width: 100%;
+      height: auto;
       object-fit: cover;
       display: block;
     }
 
     .post-actions {
-      padding: 10px 12px 5px;
+      padding: 12px 16px 6px;
       display: flex;
-      gap: 15px;
+      gap: 16px;
     }
 
-    .action-btn {
+    .icon-btn {
       background: none;
       border: none;
-      color: white;
-      font-size: 20px;
+      color: var(--text-main);
+      font-size: 22px;
       cursor: pointer;
+      transition: transform 0.1s;
     }
 
-    .action-btn.liked { color: var(--like-color); }
+    .icon-btn:active {
+      transform: scale(1.2);
+    }
 
-    .post-likes {
-      padding: 0 12px;
+    .icon-btn.liked {
+      color: var(--like-color);
+    }
+
+    .likes-count {
+      padding: 0 16px;
       font-weight: 600;
       font-size: 13px;
     }
 
-    .post-caption {
-      padding: 5px 12px;
+    .caption-box {
+      padding: 6px 16px 12px;
       font-size: 14px;
+      line-height: 1.4;
     }
 
-    .post-caption span { font-weight: 600; margin-right: 5px; }
-
-    /* Izohlar */
-    .comments-section {
-      padding: 5px 12px 12px;
+    .caption-box .author {
+      font-weight: 700;
+      margin-right: 6px;
     }
 
-    .comment-item {
+    /* Izohlar Sektsiyasi */
+    .comments-wrapper {
+      padding: 0 16px 14px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 6px;
+    }
+
+    .comment-line {
       font-size: 13px;
-      margin-top: 3px;
       color: var(--text-muted);
+      margin-top: 6px;
     }
 
-    .comment-input-box {
+    .comment-line b {
+      color: var(--text-main);
+    }
+
+    .add-comment-form {
       display: flex;
-      border-top: 1px solid var(--border-color);
       margin-top: 10px;
+      gap: 8px;
     }
 
-    .comment-input-box input {
+    .add-comment-form input {
       flex: 1;
-      background: none;
+      background: transparent;
       border: none;
-      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
       color: white;
+      padding: 6px 0;
       font-size: 13px;
       outline: none;
     }
 
-    .comment-input-box button {
+    .add-comment-form button {
       background: none;
       border: none;
-      color: var(--accent);
+      color: #00d2ff;
       font-weight: 600;
-      padding: 0 12px;
+      font-size: 13px;
       cursor: pointer;
     }
   </style>
@@ -217,111 +269,133 @@
 <body>
 
   <div class="app-container">
+    <!-- Header -->
     <header>
-      <div class="logo">InstaClone</div>
-      <button class="add-post-btn" id="openModalBtn">+ Post</button>
+      <div class="brand-logo">Ghpat</div>
+      <button class="btn-create" id="openModalBtn">+ Yaratish</button>
     </header>
 
-    <!-- Modal: Yangi post yaratish -->
-    <div class="modal" id="postModal">
-      <div class="modal-content">
+    <!-- Post Yaratish Modali -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal-card">
         <h3>Yangi Post Yaratish</h3>
-        <input type="text" id="authorInput" placeholder="Ismingiz (username)">
-        <input type="file" id="imageInput" accept="image/*">
-        <textarea id="captionInput" placeholder="Rasm haqida matn..." rows="3"></textarea>
-        <button class="add-post-btn" id="submitPostBtn" style="width: 100%;">Ulashish</button>
+        <input type="text" class="input-field" id="authorInput" placeholder="Sizning nikeringiz (username)">
+        <input type="file" class="input-field" id="imageFileInput" accept="image/*">
+        <textarea class="textarea-field" id="captionInput" placeholder="Post uchun matn yozing..." rows="3"></textarea>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-create" id="publishBtn" style="flex: 1;">Chiqarish</button>
+          <button class="btn-create" id="closeModalBtn" style="background: #333; flex: 1;">Bekor qilish</button>
+        </div>
       </div>
     </div>
 
-    <!-- Feed (Lenta) -->
+    <!-- Feed / Lenta -->
     <div class="feed" id="feedContainer"></div>
   </div>
 
   <script>
-    // Boshlang'ich ma'lumotlar (Demo Data)
-    let posts = [
+    // Boshlang'ich va saqlangan postlar
+    let posts = JSON.parse(localStorage.getItem('ghpat_posts')) || [
       {
-        id: 1,
-        author: "ali_coder",
-        avatar: "https://i.pravatar.cc/150?img=11",
-        image: "https://picsum.photos/600/600?random=1",
-        caption: "Toshkentda ajoyib kun! ☀️ #nature #uzb",
-        likes: 12,
+        id: 101,
+        author: "ghpat_official",
+        avatar: "https://i.pravatar.cc/150?img=60",
+        image: "https://picsum.photos/600/600?random=10",
+        caption: "Ghpat ijtimoiy tarmog'iga xush kelibsiz! 🚀 Birinchi postni joylang.",
+        likes: 24,
         isLiked: false,
-        comments: ["Zo'r rasm!", "Chiroyli chiqibdi"]
+        comments: ["Loyihaga omad!", "Dizayn juda dahliz chiqqan 🔥"]
       }
     ];
 
     const feedContainer = document.getElementById('feedContainer');
     const openModalBtn = document.getElementById('openModalBtn');
-    const postModal = document.getElementById('postModal');
-    const submitPostBtn = document.getElementById('submitPostBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const publishBtn = document.getElementById('publishBtn');
 
-    // Postlarni ekranga chiqarish
-    function renderPosts() {
+    // Postlarni brauzer xotirasiga saqlash
+    function savePosts() {
+      localStorage.setItem('ghpat_posts', JSON.stringify(posts));
+    }
+
+    // Postlarni ekranga chiqarish (Render)
+    function renderFeed() {
       feedContainer.innerHTML = '';
       posts.forEach(post => {
-        const postElement = document.createElement('div');
-        postElement.classList.add('post-card');
-        postElement.innerHTML = `
+        const postCard = document.createElement('article');
+        postCard.className = 'post';
+        postCard.innerHTML = `
           <div class="post-header">
-            <div class="avatar"><img src="${post.avatar}" alt="avatar"></div>
+            <div class="user-avatar">
+              <img src="${post.avatar}" alt="user avatar">
+            </div>
             <div class="username">${post.author}</div>
           </div>
-          <img src="${post.image}" class="post-img" alt="post">
+
+          <div class="post-image-box">
+            <img src="${post.image}" class="post-image" alt="post content">
+          </div>
+
           <div class="post-actions">
-            <button class="action-btn ${post.isLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+            <button class="icon-btn ${post.isLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
               ${post.isLiked ? '❤️' : '🤍'}
             </button>
           </div>
-          <div class="post-likes">${post.likes} ta layk</div>
-          <div class="post-caption"><span>${post.author}</span>${post.caption}</div>
-          
-          <div class="comments-section">
-            ${post.comments.map(c => `<div class="comment-item"><b>Foydalanuvchi:</b> ${c}</div>`).join('')}
-            <div class="comment-input-box">
+
+          <div class="likes-count">${post.likes} ta yoqtirishlar</div>
+
+          <div class="caption-box">
+            <span class="author">${post.author}</span>${post.caption}
+          </div>
+
+          <div class="comments-wrapper">
+            ${post.comments.map(c => `<div class="comment-line"><b>Foydalanuvchi:</b> ${c}</div>`).join('')}
+            <div class="add-comment-form">
               <input type="text" placeholder="Izoh qoldiring..." id="comment-input-${post.id}">
-              <button onclick="addComment(${post.id})">Joylash</button>
+              <button onclick="submitComment(${post.id})">Yuborish</button>
             </div>
           </div>
         `;
-        feedContainer.appendChild(postElement);
+        feedContainer.appendChild(postCard);
       });
     }
 
-    // Layk bosish mantiqi
+    // Layk/Reaksiya funksiyasi
     function toggleLike(id) {
       const post = posts.find(p => p.id === id);
       if (post) {
         post.isLiked = !post.isLiked;
         post.likes += post.isLiked ? 1 : -1;
-        renderPosts();
+        savePosts();
+        renderFeed();
       }
     }
 
-    // Izoh qo'shish mantiqi
-    function addComment(id) {
+    // Izoh yuborish
+    function submitComment(id) {
       const input = document.getElementById(`comment-input-${id}`);
-      if (input.value.trim() !== '') {
+      const val = input.value.trim();
+      if (val) {
         const post = posts.find(p => p.id === id);
-        post.comments.push(input.value.trim());
-        input.value = '';
-        renderPosts();
+        post.comments.push(val);
+        savePosts();
+        renderFeed();
       }
     }
 
-    // Modal oynani ochish/yopish
-    openModalBtn.onclick = () => postModal.style.display = 'flex';
-    window.onclick = (e) => { if (e.target === postModal) postModal.style.display = 'none'; };
+    // Modallarni boshqarish
+    openModalBtn.onclick = () => modalOverlay.style.display = 'flex';
+    closeModalBtn.onclick = () => modalOverlay.style.display = 'none';
 
-    // Yangi post yaratish
-    submitPostBtn.onclick = () => {
-      const author = document.getElementById('authorInput').value || 'noma_lum';
-      const caption = document.getElementById('captionInput').value;
-      const imageFile = document.getElementById('imageInput').files[0];
+    // Yangi rasm/post joylash
+    publishBtn.onclick = () => {
+      const author = document.getElementById('authorInput').value.trim() || 'user_' + Math.floor(Math.random() * 1000);
+      const caption = document.getElementById('captionInput').value.trim();
+      const fileInput = document.getElementById('imageFileInput').files[0];
 
-      if (!imageFile) {
-        alert("Iltimos, rasm tanlang!");
+      if (!fileInput) {
+        alert("Iltimos, biror rasm tanlang!");
         return;
       }
 
@@ -330,22 +404,29 @@
         const newPost = {
           id: Date.now(),
           author: author,
-          avatar: "https://i.pravatar.cc/150?img=33",
+          avatar: "https://i.pravatar.cc/150?img=" + Math.floor(Math.random() * 50),
           image: e.target.result,
           caption: caption,
           likes: 0,
           isLiked: false,
           comments: []
         };
+
         posts.unshift(newPost);
-        renderPosts();
-        postModal.style.display = 'none';
+        savePosts();
+        renderFeed();
+
+        // Formalarni tozalash va yopish
+        document.getElementById('captionInput').value = '';
+        document.getElementById('imageFileInput').value = '';
+        modalOverlay.style.display = 'none';
       };
-      reader.readAsDataURL(imageFile);
+
+      reader.readAsDataURL(fileInput);
     };
 
-    // Boshlanishida chiqarish
-    renderPosts();
+    // Boshlanishida ishga tushirish
+    renderFeed();
   </script>
 </body>
 </html>
