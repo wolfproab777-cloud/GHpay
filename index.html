@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Auto-Login Script</title>
+    <title>Roblox Nick Checker & Token</title>
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #0d0d0d;
             color: #fff;
             height: 100vh;
@@ -14,36 +14,38 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        .card {
+            background-color: #1a1a1a;
+            width: 380px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+            border: 1px solid #333;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
 
-        .container {
-            background: #1a1a1a;
-            padding: 40px;
-            border-radius: 15px;
-            width: 350px;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
-            border: 1px solid #333;
-            position: relative;
-        }
-
         h2 {
-            text-align: center;
             color: #00ff88;
-            margin-bottom: 30px;
-            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 22px;
         }
 
-        .input-group {
-            margin-bottom: 20px;
+        .input-box {
+            position: relative;
+            margin-bottom: 25px;
         }
 
         input {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             background: #000;
-            border: 1px solid #333;
+            border: 2px solid #333;
             color: #fff;
+            font-size: 16px;
             border-radius: 8px;
             outline: none;
             box-sizing: border-box;
@@ -55,13 +57,14 @@
 
         button {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
-            border: none;
+            padding: 15px;
+            background: linear-gradient(90deg, #00ff88, #00cc6a);
             color: #000;
             font-weight: bold;
-            cursor: pointer;
+            border: none;
             border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
             transition: 0.3s;
         }
 
@@ -69,161 +72,159 @@
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
         }
 
-        /* Status Panel */
-        #statusPanel {
+        button:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        /* Natija oynasi */
+        #resultArea {
             margin-top: 20px;
-            text-align: center;
-            font-size: 14px;
-            color: #aaa;
-            min-height: 20px;
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            display: none;
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid #00ff88;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Success Overlay (Kirgandan keyin chiqadigan ekran) */
-        #successOverlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            border-radius: 15px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s;
-            z-index: 10;
         }
 
-        #successOverlay.active {
-            opacity: 1;
-            pointer-events: all;
+        .status-msg {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        .token-display {
+            background: #222;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            word-break: break-all;
+            font-family: monospace;
+            color: #fff;
+            display: none; /* Boshida yashirin */
+            border: 1px dashed #00ff88;
+        }
+
+        /* Animatsiyalar */
+        .checking {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .error-text {
+            color: #ff4444;
+            font-weight: bold;
+            font-size: 18px;
         }
 
         .success-text {
             color: #00ff88;
-            font-size: 24px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .token-box {
-            background: #222;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            color: #fff;
-            margin-top: 10px;
-            word-break: break-all;
+            font-weight: bold;
+            font-size: 18px;
         }
 
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- Kirish oynasi -->
-    <div id="loginForm">
-        <h2>Auto Login</h2>
-        <div class="input-group">
-            <input type="text" id="nikName" placeholder="Nick nomini kiriting..." autocomplete="off">
-        </div>
-        <!-- Parol shart emas, lekin ko'rinishi uchun qoldirdim -->
-        <div class="input-group">
-            <input type="password" id="passField" placeholder="Parol (avtomatik)..." disabled style="opacity: 0.5;">
-        </div>
-        
-        <button onclick="autoLogin()" id="btnLogin">Tizimga Kirish</button>
-        
-        <div class="spinner" id="loader"></div>
-        <div id="statusPanel">Kutib turilmoqda...</div>
+<div class="card">
+    <h2>Nik Checker & Token</h2>
+    
+    <div class="input-box">
+        <input type="text" id="nikInput" placeholder="Roblox nickini yozing..." autocomplete="off">
     </div>
 
-    <!-- Muvaffaqiyatli kirgandan keyin chiqadigan qism -->
-    <div id="successOverlay">
-        <div class="success-text">✅ Tizimga kirdingiz!</div>
-        <div style="font-size: 14px; color: #aaa;">Sizning Token:</div>
-        <div class="token-box" id="tokenDisplay">Loading token...</div>
-        <button onclick="reset()" style="margin-top: 20px; width: 80%; background: #333; color: #fff;">Chiqish</button>
+    <button onclick="checkAndLogin()" id="btnCheck">Tekshirish va Kirish</button>
+
+    <div id="resultArea">
+        <div class="status-msg" id="statusMsg">Nick nomini kuting...</div>
+        <div class="token-display" id="tokenOutput"></div>
     </div>
 </div>
 
 <script>
-    async function autoLogin() {
-        const nik = document.getElementById('nikName').value.trim();
-        const btn = document.getElementById('btnLogin');
-        const status = document.getElementById('statusPanel');
-        const loader = document.getElementById('loader');
-        const passField = document.getElementById('passField');
+    // 1. "Real" deb hisoblanadigan niklar ro'yxati (Simulyatsiya uchun)
+    // Haqiqiy API ulansa, bu barcha niklarni qidiradi. Hozircha shularni topadi:
+    const knownRobloxNicks = [
+        "Roblox", 
+        "BaconLord", 
+        "Guest99", 
+        "NoobMaster69", 
+        "Builderman", 
+        "RocketRico", 
+        "Dantheman",
+        "MegaBloxxer"
+    ];
 
-        if (!nik) {
-            alert("Nick nomini kiriting!");
+    async function checkAndLogin() {
+        const input = document.getElementById('nikInput');
+        const btn = document.getElementById('btnCheck');
+        const statusMsg = document.getElementById('statusMsg');
+        const tokenOutput = document.getElementById('tokenOutput');
+        
+        let nick = input.value.trim();
+
+        if (!nick) {
+            alert("Iltimos, nick nomini kiriting!");
             return;
         }
 
-        // 1. UI ni yuklanish holatiga o'tkazish
+        // UI ni tozalash va yuklanish holatiga o'tkazish
         btn.disabled = true;
-        btn.innerText = "Tekshirilmoqda...";
-        loader.style.display = "block";
-        status.innerHTML = `Serverga ulanish: <span style="color:#00ff88">${nik}</span>`;
+        btn.innerText = "Qidirilmoqda...";
+        tokenOutput.style.display = 'none';
+        statusMsg.className = 'status-msg checking';
+        statusMsg.innerText = `${nick} Roblox bazasida qidirilmoqda...`;
+
+        // Simulyatsiya: Serverga so'rov ketayotgandek kutish (1.5 soniya)
+        await new Promise(r => setTimeout(r, 1500));
+
+        // 2. Nik mavjudligini tekshirish logikasi
+        // Haqiqiy dunyoda bu yerda API chaqiriladi. Biz esa `knownRobloxNicks` ichida qidiramiz.
         
-        // Parol maydonini to'ldirish effekti
-        passField.value = "";
-        let typingEffect = "";
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
+        let found = false;
         
-        // Simulyatsiya: Parolni o'zi yozib qo'yayotgandek qilish
-        for(let i=0; i<15; i++) {
-            typingEffect += chars[Math.floor(Math.random() * chars.length)];
-            passField.value = typingEffect;
-            await new Promise(r => setTimeout(r, 50));
+        // Kichik harf va katta harf farqini yo'qotish uchun (case-insensitive)
+        const lowerNick = nick.toLowerCase();
+        
+        // Tekshirish sikli
+        for (let i = 0; i < knownRobloxNicks.length; i++) {
+            if (knownRobloxNicks[i].toLowerCase() === lowerNick) {
+                found = true;
+                break;
+            }
         }
 
-        // 2. Serverdan javob kutish simulyatsiyasi
-        status.innerHTML = "Autentifikatsiya...";
-        await new Promise(r => setTimeout(r, 1000));
-        
-        status.innerHTML = "Token olinmoqda...";
-        await new Promise(r => setTimeout(r, 800));
+        // Agar natija bo'lsa:
+        if (found) {
+            statusMsg.className = 'status-msg success-text';
+            statusMsg.innerText = "✅ Nik topildi! Token generatsiya qilinmoqda...";
+            
+            await new Promise(r => setTimeout(r, 1000)); // Token chiqishini kutish
 
-        // 3. Muvaffaqiyatli kirish
-        loader.style.display = "none";
-        btn.innerText = "Kirildi!";
-        
-        // Token generatsiya qilish
-        const token = "rbx_auth_" + Math.random().toString(36).substr(2) + Date.now();
-        
-        // Overlayni ko'rsatish
-        document.getElementById('successOverlay').classList.add('active');
-        document.getElementById('tokenDisplay').innerText = token;
-    }
+            // Token yaratish
+            const token = `rbx_auth_${nick}_${Math.random().toString(36).substr(2)}_${Date.now()}`;
+            
+            tokenOutput.style.display = 'block';
+            tokenOutput.innerText = token;
+            
+            btn.disabled = false;
+            btn.innerText = "Qayta tekshirish";
 
-    function reset() {
-        document.getElementById('successOverlay').classList.remove('active');
-        document.getElementById('btnLogin').disabled = false;
-        document.getElementById('btnLogin').innerText = "Tizimga Kirish";
-        document.getElementById('statusPanel').innerText = "Kutib turilmoqda...";
-        document.getElementById('nikName').value = "";
-        document.getElementById('passField').value = "";
+        } else {
+            // Agar natija bo'lmasa:
+            statusMsg.className = 'status-msg error-text';
+            statusMsg.innerText = `❌ "${nick}" Robloxda yo'q!`;
+            
+            btn.disabled = false;
+            btn.innerText = "Tekshirish va Kirish";
+        }
     }
 </script>
 
