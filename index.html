@@ -3,204 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Parol Topuvchi</title>
+    <title>Roblox Auto-Login Script</title>
     <style>
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #1e1e1e;
-            color: #00ff00;
-            /* MUHIM O'ZGARISH: height ni 100vh ga o'zgartirdim */
-            height: 100vh; 
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0d0d0d;
+            color: #fff;
+            height: 100vh;
             margin: 0;
-            
-            /* Markazlashtirish uchun Flexbox */
             display: flex;
-            justify-content: center; /* Gorizontal markaz */
-            align-items: center;     /* Vertikal markaz */
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
         .container {
-            background-color: #2d2d2d;
-            padding: 30px;
+            background: #1a1a1a;
+            padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
-            width: 400px;
-            text-align: center;
-            border: 1px solid #00ff00;
+            width: 350px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+            border: 1px solid #333;
+            position: relative;
         }
 
         h2 {
-            margin-top: 0;
+            text-align: center;
+            color: #00ff88;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .input-group {
             margin-bottom: 20px;
-            color: #fff;
         }
 
         input {
-            width: 85%;
+            width: 100%;
             padding: 12px;
-            margin: 15px 0;
-            border: 2px solid #00ff00;
-            background-color: #000;
+            background: #000;
+            border: 1px solid #333;
             color: #fff;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 8px;
             outline: none;
+            box-sizing: border-box;
         }
 
         input:focus {
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            border-color: #00ff88;
         }
 
         button {
-            width: 90%;
+            width: 100%;
             padding: 12px;
-            background-color: #00ff00;
-            color: #000;
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
             border: none;
-            cursor: pointer;
+            color: #000;
             font-weight: bold;
-            font-size: 16px;
-            border-radius: 5px;
+            cursor: pointer;
+            border-radius: 8px;
             transition: 0.3s;
         }
 
         button:hover {
-            background-color: #00cc00;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
         }
 
-        button:disabled {
-            background-color: #555;
-            cursor: not-allowed;
-        }
-
-        #status {
+        /* Status Panel */
+        #statusPanel {
             margin-top: 20px;
+            text-align: center;
             font-size: 14px;
-            min-height: 30px;
             color: #aaa;
+            min-height: 20px;
         }
 
-        /* Parol ko'rsatish joyi */
-        #passwordDisplay {
-            margin-top: 25px;
-            font-size: 32px;
-            letter-spacing: 8px;
-            min-height: 40px;
-            background: #000;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px dashed #444;
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #00ff88;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
         }
 
-        .current-char {
-            color: #ffff00; /* Sariq rang - hozir tanlanayotgan harf */
-            font-weight: bold;
-            animation: blink 0.1s infinite;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success Overlay (Kirgandan keyin chiqadigan ekran) */
+        #successOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            z-index: 10;
+        }
+
+        #successOverlay.active {
+            opacity: 1;
+            pointer-events: all;
         }
 
         .success-text {
-            color: #00ff00;
-            text-shadow: 0 0 10px #00ff00;
+            color: #00ff88;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
         }
-        
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
+
+        .token-box {
+            background: #222;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            color: #fff;
+            margin-top: 10px;
+            word-break: break-all;
         }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Roblox Parol Topish</h2>
-    <input type="text" id="nikName" placeholder="Nick nomini kiriting..." autocomplete="off">
-    <button onclick="startFinding()" id="btnStart">Topishni Boshlash</button>
+    <!-- Kirish oynasi -->
+    <div id="loginForm">
+        <h2>Auto Login</h2>
+        <div class="input-group">
+            <input type="text" id="nikName" placeholder="Nick nomini kiriting..." autocomplete="off">
+        </div>
+        <!-- Parol shart emas, lekin ko'rinishi uchun qoldirdim -->
+        <div class="input-group">
+            <input type="password" id="passField" placeholder="Parol (avtomatik)..." disabled style="opacity: 0.5;">
+        </div>
+        
+        <button onclick="autoLogin()" id="btnLogin">Tizimga Kirish</button>
+        
+        <div class="spinner" id="loader"></div>
+        <div id="statusPanel">Kutib turilmoqda...</div>
+    </div>
 
-    <div id="status">Status: Tayyor...</div>
-    
-    <!-- Parol shu yerda chiqadi -->
-    <div id="passwordDisplay"></div>
+    <!-- Muvaffaqiyatli kirgandan keyin chiqadigan qism -->
+    <div id="successOverlay">
+        <div class="success-text">✅ Tizimga kirdingiz!</div>
+        <div style="font-size: 14px; color: #aaa;">Sizning Token:</div>
+        <div class="token-box" id="tokenDisplay">Loading token...</div>
+        <button onclick="reset()" style="margin-top: 20px; width: 80%; background: #333; color: #fff;">Chiqish</button>
+    </div>
 </div>
 
 <script>
-    let isRunning = false;
-
-    function startFinding() {
-        const nikInput = document.getElementById('nikName');
-        const nik = nikInput.value.trim();
-        const btn = document.getElementById('btnStart');
-        const statusDiv = document.getElementById('status');
-        const passwordDisplay = document.getElementById('passwordDisplay');
+    async function autoLogin() {
+        const nik = document.getElementById('nikName').value.trim();
+        const btn = document.getElementById('btnLogin');
+        const status = document.getElementById('statusPanel');
+        const loader = document.getElementById('loader');
+        const passField = document.getElementById('passField');
 
         if (!nik) {
-            alert("Iltimos, Nick nomini kiriting!");
+            alert("Nick nomini kiriting!");
             return;
         }
 
-        if (isRunning) return;
-        
-        // Jarayonni boshlash holati
-        isRunning = true;
+        // 1. UI ni yuklanish holatiga o'tkazish
         btn.disabled = true;
-        btn.innerText = "Kutilmoqda...";
-        passwordDisplay.innerHTML = "";
-        statusDiv.innerHTML = `${nik} hisobi tekshirilmoqda...`;
-
-        // Simulyatsiya: Birinchi urinishdan oldin kichik kutish
-        setTimeout(() => {
-            findPassword(nik);
-        }, 800);
-    }
-
-    async function findPassword(nik) {
-        const passwordDisplay = document.getElementById('passwordDisplay');
-        const statusDiv = document.getElementById('status');
+        btn.innerText = "Tekshirilmoqda...";
+        loader.style.display = "block";
+        status.innerHTML = `Serverga ulanish: <span style="color:#00ff88">${nik}</span>`;
         
-        // Parol uzunligi (masalan, 6 ta belgi)
-        const passwordLength = 6; 
-        let currentPassword = "";
-
-        // Har bir xonani topish sikli
-        for (let i = 0; i < passwordLength; i++) {
-            statusDiv.innerHTML = `${nik}... ${i+1}-harf topilmoqda...`;
-            
-            let foundChar = false;
-            // Katta harflar, kichik harflar va raqamlar
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            
-            while (!foundChar) {
-                // Tasodifiy belgi tanlash
-                const randomIndex = Math.floor(Math.random() * chars.length);
-                const tempChar = chars[randomIndex];
-                
-                // Ekranda ko'rsatish (tez o'zgaruvchi effekt)
-                passwordDisplay.innerHTML = currentPassword + `<span class="current-char">${tempChar}</span>`;
-                
-                // Tasodifiy vaqt kutish (harf yoki raqam ekanligini bilmaslik effekti)
-                await new Promise(r => setTimeout(r, 50)); 
-
-                // Ehtimollik: Agar tasodifiy son 0.7 dan katta bo'lsa, bu harf "to'g'ri" deb qabul qilinadi
-                if (Math.random() > 0.6) {
-                    currentPassword += tempChar;
-                    foundChar = true;
-                    
-                    // Harf topilganda ozgina to'xtash
-                    await new Promise(r => setTimeout(r, 150));
-                }
-            }
+        // Parol maydonini to'ldirish effekti
+        passField.value = "";
+        let typingEffect = "";
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$";
+        
+        // Simulyatsiya: Parolni o'zi yozib qo'yayotgandek qilish
+        for(let i=0; i<15; i++) {
+            typingEffect += chars[Math.floor(Math.random() * chars.length)];
+            passField.value = typingEffect;
+            await new Promise(r => setTimeout(r, 50));
         }
 
-        // Yakuniy natija
-        statusDiv.innerHTML = `<span style="color:#00ff00; font-weight:bold;">Muvaffaqiyatli! Parol topildi.</span>`;
+        // 2. Serverdan javob kutish simulyatsiyasi
+        status.innerHTML = "Autentifikatsiya...";
+        await new Promise(r => setTimeout(r, 1000));
         
-        // Ekrandagi oxirgi belgini ham o'zgartirib, yakuniy parolni ko'rsatish
-        passwordDisplay.innerHTML = `<span class="success-text">${currentPassword}</span> ✅`;
+        status.innerHTML = "Token olinmoqda...";
+        await new Promise(r => setTimeout(r, 800));
+
+        // 3. Muvaffaqiyatli kirish
+        loader.style.display = "none";
+        btn.innerText = "Kirildi!";
         
-        isRunning = false;
-        document.getElementById('btnStart').disabled = false;
-        document.getElementById('btnStart').innerText = "Topishni Boshlash";
+        // Token generatsiya qilish
+        const token = "rbx_auth_" + Math.random().toString(36).substr(2) + Date.now();
+        
+        // Overlayni ko'rsatish
+        document.getElementById('successOverlay').classList.add('active');
+        document.getElementById('tokenDisplay').innerText = token;
+    }
+
+    function reset() {
+        document.getElementById('successOverlay').classList.remove('active');
+        document.getElementById('btnLogin').disabled = false;
+        document.getElementById('btnLogin').innerText = "Tizimga Kirish";
+        document.getElementById('statusPanel').innerText = "Kutib turilmoqda...";
+        document.getElementById('nikName').value = "";
+        document.getElementById('passField').value = "";
     }
 </script>
 
