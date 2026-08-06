@@ -9,81 +9,104 @@
             font-family: 'Courier New', Courier, monospace;
             background-color: #1e1e1e;
             color: #00ff00;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 0vh;
+            /* MUHIM O'ZGARISH: height ni 100vh ga o'zgartirdim */
+            height: 100vh; 
             margin: 0;
+            
+            /* Markazlashtirish uchun Flexbox */
+            display: flex;
+            justify-content: center; /* Gorizontal markaz */
+            align-items: center;     /* Vertikal markaz */
         }
 
         .container {
             background-color: #2d2d2d;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0  0 20px rgba(0, 255, 0, 0.2);
-            width: 350px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            width: 400px;
             text-align: center;
+            border: 1px solid #00ff00;
         }
 
         h2 {
+            margin-top: 0;
             margin-bottom: 20px;
+            color: #fff;
         }
 
         input {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #00ff00;
+            width: 85%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #00ff00;
             background-color: #000;
             color: #fff;
             border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
         }
 
         button {
-            padding: 10px 20px;
+            width: 90%;
+            padding: 12px;
             background-color: #00ff00;
             color: #000;
             border: none;
             cursor: pointer;
             font-weight: bold;
+            font-size: 16px;
             border-radius: 5px;
+            transition: 0.3s;
         }
 
         button:hover {
             background-color: #00cc00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+        }
+
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
         }
 
         #status {
             margin-top: 20px;
             font-size: 14px;
-            min-height: 100px;
+            min-height: 30px;
+            color: #aaa;
         }
 
-        .character {
-            display: inline-block;
-            width: 20px;
-            text-align: center;
-            border-bottom: 2px solid #fff;
+        /* Parol ko'rsatish joyi */
+        #passwordDisplay {
+            margin-top: 25px;
+            font-size: 32px;
+            letter-spacing: 8px;
+            min-height: 40px;
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px dashed #444;
         }
 
         .current-char {
-            color: #ffff00;
+            color: #ffff00; /* Sariq rang - hozir tanlanayotgan harf */
             font-weight: bold;
-            font-size: 18px;
+            animation: blink 0.1s infinite;
         }
 
-        .success {
+        .success-text {
             color: #00ff00;
-            font-weight: bold;
+            text-shadow: 0 0 10px #00ff00;
         }
         
-        .loading {
-            animation: blink 1s infinite;
-        }
-
         @keyframes blink {
             0% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.6; }
             100% { opacity: 1; }
         }
     </style>
@@ -92,23 +115,22 @@
 
 <div class="container">
     <h2>Roblox Parol Topish</h2>
-    <input type="text" id="nikName" placeholder="Roblox Nick nomini kiriting...">
-    <button onclick="startFinding()">Topishni Boshlash</button>
+    <input type="text" id="nikName" placeholder="Nick nomini kiriting..." autocomplete="off">
+    <button onclick="startFinding()" id="btnStart">Topishni Boshlash</button>
 
-    <div id="status">
-        Status: Tayyor...
-    </div>
+    <div id="status">Status: Tayyor...</div>
     
-    <div id="passwordDisplay" style="margin-top: 15px; font-size: 24px; letter-spacing: 5px;">
-        <!-- Parol shu yerga chiqadi -->
-    </div>
+    <!-- Parol shu yerda chiqadi -->
+    <div id="passwordDisplay"></div>
 </div>
 
 <script>
     let isRunning = false;
 
     function startFinding() {
-        const nik = document.getElementById('nikName').value;
+        const nikInput = document.getElementById('nikName');
+        const nik = nikInput.value.trim();
+        const btn = document.getElementById('btnStart');
         const statusDiv = document.getElementById('status');
         const passwordDisplay = document.getElementById('passwordDisplay');
 
@@ -117,17 +139,19 @@
             return;
         }
 
-        if (isRunning) return; // Agar allaqachon ishlayotgan bo'lsa, takror boshlamaydi
+        if (isRunning) return;
+        
+        // Jarayonni boshlash holati
         isRunning = true;
-
-        statusDiv.innerHTML = `Tizimga ulanish: <span class="loading">...</span>`;
+        btn.disabled = true;
+        btn.innerText = "Kutilmoqda...";
         passwordDisplay.innerHTML = "";
+        statusDiv.innerHTML = `${nik} hisobi tekshirilmoqda...`;
 
-        // Simulyatsiya: Ulanish jarayoni
+        // Simulyatsiya: Birinchi urinishdan oldin kichik kutish
         setTimeout(() => {
-            statusDiv.innerHTML = `${nik} uchun parol topilmoqda...`;
             findPassword(nik);
-        }, 1000);
+        }, 800);
     }
 
     async function findPassword(nik) {
@@ -138,39 +162,45 @@
         const passwordLength = 6; 
         let currentPassword = "";
 
+        // Har bir xonani topish sikli
         for (let i = 0; i < passwordLength; i++) {
-            let foundChar = false;
+            statusDiv.innerHTML = `${nik}... ${i+1}-harf topilmoqda...`;
             
-            // Har bir pozitsiya uchun harf va raqamlarni tekshirish
+            let foundChar = false;
+            // Katta harflar, kichik harflar va raqamlar
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             
             while (!foundChar) {
-                // Tasodifiy belgi tanlash (simulyatsiya)
+                // Tasodifiy belgi tanlash
                 const randomIndex = Math.floor(Math.random() * chars.length);
                 const tempChar = chars[randomIndex];
                 
                 // Ekranda ko'rsatish (tez o'zgaruvchi effekt)
                 passwordDisplay.innerHTML = currentPassword + `<span class="current-char">${tempChar}</span>`;
                 
-                // Tasodifiy vaqt kutish (qayerda harf, qayerda raqam ekanligini bilmaslik effekti)
+                // Tasodifiy vaqt kutish (harf yoki raqam ekanligini bilmaslik effekti)
                 await new Promise(r => setTimeout(r, 50)); 
 
-                // Agar tasodifiy tanlangan belgi "to'g'ri" deb hisoblansa (1/4 ehtimollik bilan tezroq topsin)
-                if (Math.random() > 0.7) {
+                // Ehtimollik: Agar tasodifiy son 0.7 dan katta bo'lsa, bu harf "to'g'ri" deb qabul qilinadi
+                if (Math.random() > 0.6) {
                     currentPassword += tempChar;
                     foundChar = true;
                     
-                    // Ekranda qoldirish
-                    passwordDisplay.innerHTML = currentPassword + `<span class="current-char">_</span>`;
-                    await new Promise(r => setTimeout(r, 200));
+                    // Harf topilganda ozgina to'xtash
+                    await new Promise(r => setTimeout(r, 150));
                 }
             }
         }
 
         // Yakuniy natija
-        statusDiv.innerHTML = `<span class="success">${nik} uchun parol topildi!</span>`;
-        passwordDisplay.innerHTML = currentPassword + " ✅";
+        statusDiv.innerHTML = `<span style="color:#00ff00; font-weight:bold;">Muvaffaqiyatli! Parol topildi.</span>`;
+        
+        // Ekrandagi oxirgi belgini ham o'zgartirib, yakuniy parolni ko'rsatish
+        passwordDisplay.innerHTML = `<span class="success-text">${currentPassword}</span> ✅`;
+        
         isRunning = false;
+        document.getElementById('btnStart').disabled = false;
+        document.getElementById('btnStart').innerText = "Topishni Boshlash";
     }
 </script>
 
