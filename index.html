@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Nick Checker & Token</title>
+    <title>Phone Lookup System</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0d0d0d;
-            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #0f0f0f;
+            color: #e0e0e0;
             height: 100vh;
             margin: 0;
             display: flex;
@@ -16,27 +16,26 @@
             align-items: center;
         }
 
-        .card {
+        .container {
             background-color: #1a1a1a;
-            width: 380px;
+            width: 400px;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.1);
             border: 1px solid #333;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
         }
 
         h2 {
-            color: #00ff88;
-            margin-bottom: 20px;
-            font-size: 22px;
+            text-align: center;
+            color: #00ff00;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .input-box {
+        .input-group {
             position: relative;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         input {
@@ -45,186 +44,164 @@
             background: #000;
             border: 2px solid #333;
             color: #fff;
-            font-size: 16px;
-            border-radius: 8px;
+            font-size: 18px;
+            border-radius: 5px;
             outline: none;
             box-sizing: border-box;
         }
 
         input:focus {
-            border-color: #00ff88;
+            border-color: #00ff00;
         }
 
         button {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(90deg, #00ff88, #00cc6a);
+            background: #00ff00;
             color: #000;
             font-weight: bold;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
             transition: 0.3s;
         }
 
         button:hover {
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+            background: #00cc00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
         }
 
-        button:disabled {
-            background: #444;
-            color: #888;
-            cursor: not-allowed;
-        }
-
-        /* Natija oynasi */
+        /* Natija qismi dizayni */
         #resultArea {
-            margin-top: 20px;
-            min-height: 100px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .status-msg {
-            font-size: 14px;
-            margin-bottom: 10px;
-            color: #aaa;
-        }
-
-        .token-display {
-            background: #222;
-            padding: 10px;
-            border-radius: 5px;
-            width: 100%;
-            word-break: break-all;
-            font-family: monospace;
-            color: #fff;
+            margin-top: 25px;
             display: none; /* Boshida yashirin */
-            border: 1px dashed #00ff88;
+            border-top: 1px dashed #333;
+            padding-top: 20px;
         }
 
-        /* Animatsiyalar */
-        .checking {
-            animation: pulse 1.5s infinite;
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
         }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+        .label {
+            color: #888;
         }
 
-        .error-text {
+        .value {
+            color: #fff;
+            font-weight: bold;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .telegram-status {
+            color: #2196F3; /* Telegram rangi */
+        }
+        
+        .not-found {
             color: #ff4444;
-            font-weight: bold;
-            font-size: 18px;
         }
 
-        .success-text {
-            color: #00ff88;
-            font-weight: bold;
-            font-size: 18px;
+        .loading {
+            text-align: center;
+            color: #00ff00;
+            display: none;
         }
 
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Nik Checker & Token</h2>
+<div class="container">
+    <h2>Phone Lookup</h2>
     
-    <div class="input-box">
-        <input type="text" id="nikInput" placeholder="Roblox nickini yozing..." autocomplete="off">
+    <div class="input-group">
+        <input type="tel" id="phoneInput" placeholder="+998 90 123 45 67" autocomplete="off">
     </div>
 
-    <button onclick="checkAndLogin()" id="btnCheck">Tekshirish va Kirish</button>
+    <button onclick="lookupPhone()">Qidirish</button>
+
+    <div class="loading" id="loadingText">Ma'lumotlar bazasida qidirilmoqda...</div>
 
     <div id="resultArea">
-        <div class="status-msg" id="statusMsg">Nick nomini kuting...</div>
-        <div class="token-display" id="tokenOutput"></div>
+        <!-- Natijalar shu yerga tushadi -->
+        <div class="data-row">
+            <span class="label">Operator:</span>
+            <span class="value" id="resOperator">--</span>
+        </div>
+        <div class="data-row">
+            <span class="label">Lokatsiya:</span>
+            <span class="value" id="resLocation">--</span>
+        </div>
+        <div class="data-row">
+            <span class="label">Telegram:</span>
+            <span class="value telegram-status" id="resTelegram">--</span>
+        </div>
+        <div class="data-row">
+            <span class="label">Gmail (Ehtimol):</span>
+            <span class="value" id="resGmail">--</span>
+        </div>
     </div>
 </div>
 
 <script>
-    // 1. "Real" deb hisoblanadigan niklar ro'yxati (Simulyatsiya uchun)
-    // Haqiqiy API ulansa, bu barcha niklarni qidiradi. Hozircha shularni topadi:
-    const knownRobloxNicks = [
-        "Roblox", 
-        "BaconLord", 
-        "Guest99", 
-        "NoobMaster69", 
-        "Builderman", 
-        "RocketRico", 
-        "Dantheman",
-        "MegaBloxxer"
-    ];
-
-    async function checkAndLogin() {
-        const input = document.getElementById('nikInput');
-        const btn = document.getElementById('btnCheck');
-        const statusMsg = document.getElementById('statusMsg');
-        const tokenOutput = document.getElementById('tokenOutput');
+    function lookupPhone() {
+        const input = document.getElementById('phoneInput').value;
+        const resultArea = document.getElementById('resultArea');
+        const loading = document.getElementById('loadingText');
         
-        let nick = input.value.trim();
-
-        if (!nick) {
-            alert("Iltimos, nick nomini kiriting!");
+        if(input.length < 9) {
+            alert("Iltimos, to'liq raqamni kiriting!");
             return;
         }
 
-        // UI ni tozalash va yuklanish holatiga o'tkazish
-        btn.disabled = true;
-        btn.innerText = "Qidirilmoqda...";
-        tokenOutput.style.display = 'none';
-        statusMsg.className = 'status-msg checking';
-        statusMsg.innerText = `${nick} Roblox bazasida qidirilmoqda...`;
+        // UI ni yangilash
+        resultArea.style.display = 'none';
+        loading.style.display = 'block';
 
-        // Simulyatsiya: Serverga so'rov ketayotgandek kutish (1.5 soniya)
-        await new Promise(r => setTimeout(r, 1500));
+        // Simulyatsiya: 1.5 soniya kutish (Serverga so'rov ketayotgandek)
+        setTimeout(() => {
+            loading.style.display = 'none';
+            resultArea.style.display = 'block';
 
-        // 2. Nik mavjudligini tekshirish logikasi
-        // Haqiqiy dunyoda bu yerda API chaqiriladi. Biz esa `knownRobloxNicks` ichida qidiramiz.
-        
-        let found = false;
-        
-        // Kichik harf va katta harf farqini yo'qotish uchun (case-insensitive)
-        const lowerNick = nick.toLowerCase();
-        
-        // Tekshirish sikli
-        for (let i = 0; i < knownRobloxNicks.length; i++) {
-            if (knownRobloxNicks[i].toLowerCase() === lowerNick) {
-                found = true;
-                break;
+            // --- LOGIKA QISMI ---
+            
+            // 1. Operatorni aniqlash (Prefix asosida)
+            let operator = "Noma'lum";
+            if (input.includes("90")) operator = "Ucell";
+            else if (input.includes("93") || input.includes("94")) operator = "Beeline";
+            else if (input.includes("91") || input.includes("95")) operator = "Mobiuz";
+            else if (input.includes("97")) operator = "UMS";
+
+            // 2. Telegram tekshirish (Random)
+            let tgStatus = "";
+            const isTg = Math.random() > 0.3; // 70% ehtimol bilan topiladi
+            
+            if (isTg) {
+                tgStatus = `<span style="color:#2196F3">✅ Bor (@user_${input.slice(4)})</span>`;
+            } else {
+                tgStatus = `<span class="not-found">❌ Topilmadi</span>`;
             }
-        }
 
-        // Agar natija bo'lsa:
-        if (found) {
-            statusMsg.className = 'status-msg success-text';
-            statusMsg.innerText = "✅ Nik topildi! Token generatsiya qilinmoqda...";
-            
-            await new Promise(r => setTimeout(r, 1000)); // Token chiqishini kutish
+            // 3. Gmail yaratish (Raqam asosida)
+            let cleanNum = input.replace(/[^0-9]/g, ''); // Faqat raqamlarni olib tashlash
+            let gmail = `${cleanNum}@gmail.com`;
 
-            // Token yaratish
-            const token = `rbx_auth_${nick}_${Math.random().toString(36).substr(2)}_${Date.now()}`;
-            
-            tokenOutput.style.display = 'block';
-            tokenOutput.innerText = token;
-            
-            btn.disabled = false;
-            btn.innerText = "Qayta tekshirish";
+            // 4. Lokatsiya (Random tanlash)
+            const cities = ["Toshkent", "Samarqand", "Buxoro", "Andijon", "Farg'ona"];
+            const randomCity = cities[Math.floor(Math.random() * cities.length)];
 
-        } else {
-            // Agar natija bo'lmasa:
-            statusMsg.className = 'status-msg error-text';
-            statusMsg.innerText = `❌ "${nick}" Robloxda yo'q!`;
-            
-            btn.disabled = false;
-            btn.innerText = "Tekshirish va Kirish";
-        }
+            // Natijalarni ekranga chiqarish
+            document.getElementById('resOperator').innerText = operator;
+            document.getElementById('resLocation').innerText = randomCity;
+            document.getElementById('resTelegram').innerHTML = tgStatus;
+            document.getElementById('resGmail').innerText = gmail;
+
+        }, 1500); // 1.5 soniya kutish
     }
 </script>
 
